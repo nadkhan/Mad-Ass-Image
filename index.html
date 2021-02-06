@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>displaying image formats (.psd,.jpg, .png,.gif,.SVG)</title>
+       <style> 
+input{
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px;
+  box-sizing: border-box;
+  border: none;
+  background-color: #3CBC8D;
+  color: white;
+  font-size: 150%;
+}
+</style>
+        
+ 
+    <style type="text/css">
+
+      body, html {
+        padding: 0;
+        margin: 0;
+        background-image: url("2.jpg");
+        background-repeat: no-repeat;
+         background-size: cover;
+        position: center;
+        height:100vh;
+       
+      }
+      #image {
+    
+        text-align: center;
+             
+
+        /*//border: 10px dashed black;
+         // padding: 80px;
+          //
+           background-color: lightgrey;
+            width: 500px;
+            height:250px;
+            border: 15px solid green;
+            padding: 50px;
+            margin: 20px;
+            position: center;*/
+      }
+    </style>
+    <script type="text/javascript" src="dist/psd.min.js">
+    </script>
+  </head>
+  <body>
+    <h1 style="font-size:40px;  text-align: center;">Displaying image formats</h1>
+     <h2 style="font-size:30px;  text-align: center;">(.psd, .jpg, .png, .gif,.svg)</h2>
+
+    <input type="file" id="imgFile" placeholder="upload psd file here" >
+    <div id="image">
+             
+    </div>
+    <!-- <pre id="data"></pre> -->
+    <script type="text/javascript">
+      (function () {
+        document.getElementById('imgFile').addEventListener('change', onImgFile_Changed, true);
+        function addImage(uploadedImage) {
+          var reader  = new FileReader();
+          // it's onload event and you forgot (parameters)
+          reader.onload = function(e)  {
+            var image = document.createElement("img");
+            // the result image data
+            image.src = e.target.result;
+            document.getElementById('image').appendChild(image);
+          };
+          // you have to declare the file loading
+          reader.readAsDataURL(uploadedImage);
+        }
+        function onImgFile_Changed(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          document.getElementById('image').innerHTML = "";
+          console.log(e.target.files.length);
+          var files = e.target.files;
+          if(files.length == 0){
+            return;
+          }
+          if(files[0].name.endsWith(".png") ||
+             files[0].name.endsWith(".jpg") ||
+             files[0].name.endsWith(".gif") ||
+             files[0].name.endsWith(".svg")
+            ){
+            addImage(files[0]);
+          }
+          else if(files[0].name.endsWith(".psd")){
+            var PSD = require('psd');
+            PSD.fromDroppedFile(e.target.files[0]).then(function (psd) {
+              console.log("psd.fromEvent : ", PSD);
+              var data = JSON.stringify(psd.tree().export(), undefined, 2);
+              // document.getElementById('data').innerHTML = data;
+              document.getElementById('image').appendChild(psd.image.toPng());
+            }                                       );
+          }
+          else{
+            alert("file format not supported");
+            return;
+          }
+          console.log("object is :", e);
+        }
+      }
+       ());
+    </script>
+  </body>
+</html>
